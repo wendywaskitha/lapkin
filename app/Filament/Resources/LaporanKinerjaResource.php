@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LaporanKinerjaResource\Pages;
-use App\Filament\Resources\LaporanKinerjaResource\RelationManagers;
-use App\Models\LaporanKinerja;
+use Carbon\Carbon;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\LaporanKinerja;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\LaporanKinerjaResource\Pages;
+use App\Filament\Resources\LaporanKinerjaResource\RelationManagers;
 
 class LaporanKinerjaResource extends Resource
 {
@@ -75,7 +76,18 @@ class LaporanKinerjaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('month_filter')
+                    ->label('Filter by Month')
+                    ->options([
+                        'current' => 'Current Month',
+                        'all' => 'All Months',
+                    ])
+                    ->query(function (Builder $query, $value) {
+                        if ($value === 'current') {
+                            return $query->whereMonth('tanggal', Carbon::now()->month)
+                                         ->whereYear('tanggal', Carbon::now()->year);
+                        }
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -1,4 +1,34 @@
 models :
+  Jabatan :
+    name  : string
+
+  Pangkat :
+    name  : string
+
+  Eselon :
+    name  : string
+
+  DetailPegawai :
+    user_id : int
+    nip : string
+    pangkat_id : int
+    jabatan_id : int
+    eselon_id : int
+    relationships :
+      belongsTo : User, Pangkat, Jabatan, Eselon
+
+  LaporanKinerja :
+    user_id : int
+    tanggal : date
+    jam_kerja : time
+    uraian : text
+    target : double
+    realisasi : double
+    capaian : double
+    relationships :
+      belongsTo : User
+
+  models :
   Bidang :
     name : string
 
