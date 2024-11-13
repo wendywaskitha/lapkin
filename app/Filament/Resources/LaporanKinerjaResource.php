@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use Carbon\Carbon;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\LaporanKinerja;
-use Filament\Resources\Resource;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanKinerjaResource\Pages;
 use App\Filament\Resources\LaporanKinerjaResource\RelationManagers;
+use App\Models\LaporanKinerja;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 
 class LaporanKinerjaResource extends Resource
 {
@@ -27,9 +27,14 @@ class LaporanKinerjaResource extends Resource
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
                     ->required(),
-                Forms\Components\DateTimePicker::make('tanggal')
+                Forms\Components\DatePicker::make('tanggal')
+                    ->native(false)
                     ->required(),
-                Forms\Components\TimePicker::make('jam_kerja')
+                Forms\Components\TimePicker::make('jam_awal')
+                    ->native(false)
+                    ->required(),
+                Forms\Components\TimePicker::make('jam_akhir')
+                    ->native(false)
                     ->required(),
                 Forms\Components\Textarea::make('uraian')
                     ->required()
@@ -54,9 +59,10 @@ class LaporanKinerjaResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tanggal')
-                    ->dateTime()
+                    ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('jam_kerja'),
+                Tables\Columns\TextColumn::make('jam_awal'),
+                Tables\Columns\TextColumn::make('jam_akhir'),
                 Tables\Columns\TextColumn::make('target')
                     ->numeric()
                     ->sortable(),
@@ -76,17 +82,24 @@ class LaporanKinerjaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('month_filter')
-                    ->label('Filter by Month')
-                    ->options([
-                        'current' => 'Current Month',
-                        'all' => 'All Months',
+                Tables\Filters\Filter::make('current_month')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_at')
+                            ->label('Filter by Created At')
+                            ->default(Carbon::now()->startOfMonth()->toDateString()), // Default to the start of the current month
                     ])
-                    ->query(function (Builder $query, $value) {
-                        if ($value === 'current') {
-                            return $query->whereMonth('tanggal', Carbon::now()->month)
-                                         ->whereYear('tanggal', Carbon::now()->year);
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['created_at'],
+                            fn (Builder $query, $date): Builder => $query->whereMonth('created_at', Carbon::parse($date)->month)
+                                ->whereYear('created_at', Carbon::parse($date)->year)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['created_at']) {
+                            return null;
                         }
+                        return Carbon::parse($data['created_at'])->translatedFormat('F Y'); // Show month and year
                     }),
             ])
             ->actions([

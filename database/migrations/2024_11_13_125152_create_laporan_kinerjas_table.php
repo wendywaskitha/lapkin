@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('laporan_kinerjas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->dateTime('tanggal');
-            $table->time('jam_kerja');
+            $table->date('tanggal');
+            $table->time('jam_awal');
+            $table->time('jam_akhir');
             $table->text('uraian');
             $table->double('target');
             $table->double('realisasi');

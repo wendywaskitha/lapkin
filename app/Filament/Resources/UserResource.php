@@ -39,13 +39,13 @@ class UserResource extends Resource
                     ->required(fn (string $operation): bool => $operation === 'create'),
                 Forms\Components\TextInput::make('detailPegawai.nip') // Add NIP field
                     ->label('NIP')
-                    ->disabled(),
+                    ->required(),
                 Forms\Components\Select::make('detailPegawai.pangkat_id') // Example for another field
                     ->relationship('detailPegawai.pangkat', 'name') // Assuming there's a relationship with Pangkat
                     ->label('Pangkat/ Golongan')
                     ->required(),
                 Forms\Components\Select::make('detailPegawai.jabatan_id') // Example for another field
-                    ->relationship('detailPegawai.pangkat', 'name') // Assuming there's a relationship with Pangkat
+                    ->relationship('detailPegawai.jabatan', 'name') // Assuming there's a relationship with Pangkat
                     ->label('Jabatan')
                     ->required(),
                 Forms\Components\Select::make('detailPegawai.eselon_id') // Example for another field
