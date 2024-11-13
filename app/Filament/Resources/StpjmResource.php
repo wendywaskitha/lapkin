@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StpjmResource\Pages;
-use App\Filament\Resources\StpjmResource\RelationManagers;
-use App\Models\Stpjm;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Stpjm;
+use Barryvdh\DomPDF\PDF;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\StpjmResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\StpjmResource\RelationManagers;
 
 class StpjmResource extends Resource
 {
@@ -48,20 +49,12 @@ class StpjmResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal')
-                    ->date()
+                    ->date('F Y')// Format to Month Year
+                    ->badge() // Use badge styling
+                    ->color('info') // Set color to info
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('unitkerja.name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tandatangan.name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('unitKerja.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('tandaTangan.name')
-                    ->numeric()
+                    ->label('Pegawai')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -77,6 +70,9 @@ class StpjmResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('Generate PDF')
+                    ->action(fn (Stpjm $record) => self::generatePdf($record)) // Call static method
+                    ->icon('heroicon-o-arrow-down-tray'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -99,5 +95,11 @@ class StpjmResource extends Resource
             'create' => Pages\CreateStpjm::route('/create'),
             'edit' => Pages\EditStpjm::route('/{record}/edit'),
         ];
+    }
+
+    protected static function generatePdf(Stpjm $record) // Make method static
+    {
+        $pdf = PDF::loadView('pdf.stpjm', ['record' => $record]);
+        return $pdf->stream('stpjm_' . $record->id . '.pdf'); // Stream the PDF
     }
 }
