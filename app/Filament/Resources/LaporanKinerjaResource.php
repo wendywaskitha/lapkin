@@ -29,6 +29,7 @@ class LaporanKinerjaResource extends Resource
                     ->required(),
                 Forms\Components\DatePicker::make('tanggal')
                     ->native(false)
+                    ->maxDate(Carbon::now()->toDateString())
                     ->required(),
                 Forms\Components\TimePicker::make('jam_awal')
                     ->native(false)
@@ -56,13 +57,17 @@ class LaporanKinerjaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
+                    ->label('Pegawai')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tanggal')
-                    ->date()
+                    ->date('d F Y')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('jam_awal'),
-                Tables\Columns\TextColumn::make('jam_akhir'),
+                Tables\Columns\TextColumn::make('jam_awal')
+                    ->label('Waktu')
+                    ->formatStateUsing(function ($record) {
+                        return $record->jam_awal . ' - ' . $record->jam_akhir; // Combine both times with a dash
+                    }),
+                Tables\Columns\TextColumn::make('uraian'),
                 Tables\Columns\TextColumn::make('target')
                     ->numeric()
                     ->sortable(),

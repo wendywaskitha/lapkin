@@ -18,7 +18,8 @@ class LaporanKinerja extends Model
     protected $fillable = [
         'user_id',
         'tanggal',
-        'jam_kerja',
+        'jam_awal',
+        'jam_akhir',
         'uraian',
         'target',
         'realisasi',
