@@ -1,0 +1,9 @@
+models :
+  Bidang :
+    name : string
+
+  Seksi :
+    name : string
+    bidang_id : int
+    relationships :
+      BelongsTo : Bidang

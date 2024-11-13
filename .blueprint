@@ -1,0 +1,15 @@
+created:
+    - database/factories/BidangFactory.php
+    - database/factories/SeksiFactory.php
+    - database/migrations/2024_11_13_210726_create_bidangs_table.php
+    - database/migrations/2024_11_13_210727_create_seksis_table.php
+    - app/Models/Bidang.php
+    - app/Models/Seksi.php
+models:
+    Jabatan: { name: string }
+    Pangkat: { name: string }
+    Eselon: { name: string }
+    DetailPegawai: { user_id: int, nip: string, pangkat_id: int, jabatan_id: int, eselon_id: int, relationships: { belongsTo: 'User, Pangkat, Jabatan, Eselon' } }
+    LaporanKinerja: { user_id: int, tanggal: datetime, jam_kerja: time, uraian: text, target: double, realisasi: double, capaian: double, relationships: { belongsTo: User } }
+    Bidang: { name: string }
+    Seksi: { name: string, bidang_id: int, relationships: { BelongsTo: Bidang } }
