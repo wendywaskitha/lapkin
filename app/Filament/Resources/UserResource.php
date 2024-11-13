@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UserResource\RelationManagers;
 
 class UserResource extends Resource
 {
@@ -33,8 +34,24 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required()
-                    ->maxLength(255),
+                    ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                    ->dehydrated(fn (?string $state): bool => filled($state))
+                    ->required(fn (string $operation): bool => $operation === 'create'),
+                Forms\Components\TextInput::make('detailPegawai.nip') // Add NIP field
+                    ->label('NIP')
+                    ->disabled(),
+                Forms\Components\Select::make('detailPegawai.pangkat_id') // Example for another field
+                    ->relationship('detailPegawai.pangkat', 'name') // Assuming there's a relationship with Pangkat
+                    ->label('Pangkat/ Golongan')
+                    ->required(),
+                Forms\Components\Select::make('detailPegawai.jabatan_id') // Example for another field
+                    ->relationship('detailPegawai.pangkat', 'name') // Assuming there's a relationship with Pangkat
+                    ->label('Jabatan')
+                    ->required(),
+                Forms\Components\Select::make('detailPegawai.eselon_id') // Example for another field
+                    ->relationship('detailPegawai.eselon', 'name') // Assuming there's a relationship with Pangkat
+                    ->label('Eselon')
+                    ->required(),
             ]);
     }
 

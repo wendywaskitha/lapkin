@@ -55,4 +55,5 @@ class DetailPegawai extends Model
     {
         return $this->belongsTo(Eselon::class);
     }
+
 }
