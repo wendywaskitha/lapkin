@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\RelationManagers\DetailPegawaiRelationManager;
 
 class UserResource extends Resource
 {
@@ -25,33 +26,18 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nama Lengkap')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->required(fn (string $operation): bool => $operation === 'create'),
-                Forms\Components\TextInput::make('detailPegawai.nip') // Add NIP field
-                    ->label('NIP')
-                    ->required(),
-                Forms\Components\Select::make('detailPegawai.pangkat_id') // Example for another field
-                    ->relationship('detailPegawai.pangkat', 'name') // Assuming there's a relationship with Pangkat
-                    ->label('Pangkat/ Golongan')
-                    ->required(),
-                Forms\Components\Select::make('detailPegawai.jabatan_id') // Example for another field
-                    ->relationship('detailPegawai.jabatan', 'name') // Assuming there's a relationship with Pangkat
-                    ->label('Jabatan')
-                    ->required(),
-                Forms\Components\Select::make('detailPegawai.eselon_id') // Example for another field
-                    ->relationship('detailPegawai.eselon', 'name') // Assuming there's a relationship with Pangkat
-                    ->label('Eselon')
-                    ->required(),
             ]);
     }
 
@@ -62,12 +48,13 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('detailPegawai.nip')
+                    ->label('NIP')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('detailPegawai.pangkat.name'),
+                Tables\Columns\TextColumn::make('detailPegawai.jabatan.name'),
+                Tables\Columns\TextColumn::make('detailPegawai.eselon.name'),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -93,7 +80,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DetailPegawaiRelationManager::class
         ];
     }
 
