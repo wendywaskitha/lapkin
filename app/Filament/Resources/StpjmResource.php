@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Stpjm;
-use Barryvdh\DomPDF\PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -71,8 +71,8 @@ class StpjmResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('Generate PDF')
-                    ->action(fn (Stpjm $record) => self::generatePdf($record)) // Call static method
-                    ->icon('heroicon-o-arrow-down-tray'),
+                ->action(fn (Stpjm $record) => StpjmResource::downloadPdf($record)) // Call the downloadPdf method from the resource
+                ->icon('heroicon-o-arrow-down-tray'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -97,9 +97,51 @@ class StpjmResource extends Resource
         ];
     }
 
-    protected static function generatePdf(Stpjm $record) // Make method static
+    public static function downloadPdf(Stpjm $record)
     {
-        $pdf = PDF::loadView('pdf.stpjm', ['record' => $record]);
-        return $pdf->stream('stpjm_' . $record->id . '.pdf'); // Stream the PDF
+        // Eager load the user and detailPegawai relationships on the existing record
+        $record->load('user.detailPegawai');
+
+        // Check if the record exists
+        if (!$record) {
+            return redirect()->back()->with('error', 'STPJM not found.');
+        }
+
+        // Sanitize the record's data to ensure it is UTF-8 encoded
+        $sanitizedRecord = self::sanitizeRecord($record);
+
+        // Sanitize user name as well
+        if ($sanitizedRecord->user) {
+            $sanitizedRecord->user->name = mb_convert_encoding($sanitizedRecord->user->name, 'UTF-8', 'auto');
+        }
+
+        // Load the PDF view with sanitized data
+        $pdf = Pdf::loadView('pdf.stpjm', ['record' => $sanitizedRecord]);
+
+        // Return the PDF as a stream to display in the browser
+        return response()->stream(function () use ($pdf) {
+            echo $pdf->output(); // Output the PDF content
+        }, 200, [ // Make sure 200 is an integer
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="stpjm_' . $sanitizedRecord->id . '.pdf"', // Use 'inline' to display in browser
+        ]);
+    }
+
+    protected static function sanitizeRecord(Stpjm $record): Stpjm
+    {
+        // Create a new instance to avoid modifying the original record
+        $sanitizedRecord = clone $record;
+
+        // Loop through the record's attributes and sanitize them
+        foreach ($sanitizedRecord->getAttributes() as $key => $value) {
+            if (is_string($value)) {
+                // Check and convert encoding if necessary
+                if (!mb_check_encoding($value, 'UTF-8')) {
+                    $sanitizedRecord->$key = mb_convert_encoding($value, 'UTF-8', 'auto');
+                }
+            }
+        }
+
+        return $sanitizedRecord;
     }
 }
