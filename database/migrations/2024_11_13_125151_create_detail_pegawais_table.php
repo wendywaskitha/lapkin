@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('detail_pegawais', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('nip');
-            $table->foreignId('pangkat_id');
-            $table->foreignId('jabatan_id');
-            $table->foreignId('eselon_id');
+            $table->foreignId('pangkat_id')->constrained('pangkats')->cascadeOnDelete();
+            $table->foreignId('jabatan_id')->constrained('jabatans')->cascadeOnDelete();
+            $table->foreignId('eselon_id')->constrained('eselons')->cascadeOnDelete();
             $table->timestamps();
         });
     }
