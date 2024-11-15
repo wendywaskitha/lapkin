@@ -2,17 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LaporanKinerjaResource\Pages;
-use App\Filament\Resources\LaporanKinerjaResource\RelationManagers;
-use App\Models\LaporanKinerja;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\LaporanKinerja;
+use Illuminate\Support\Carbon;
+use Filament\Resources\Resource;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Carbon;
+use App\Filament\Resources\LaporanKinerjaResource\Pages;
+use App\Filament\Resources\LaporanKinerjaResource\RelationManagers;
 
 class LaporanKinerjaResource extends Resource
 {
@@ -29,7 +30,7 @@ class LaporanKinerjaResource extends Resource
                     ->required(),
                 Forms\Components\DatePicker::make('tanggal')
                     ->native(false)
-                    ->maxDate(Carbon::now()->toDateString())
+                    // ->maxDate(Carbon::now()->toDateString())
                     ->required(),
                 Forms\Components\TimePicker::make('jam_awal')
                     ->native(false)
@@ -107,6 +108,15 @@ class LaporanKinerjaResource extends Resource
                         return Carbon::parse($data['created_at'])->translatedFormat('F Y'); // Show month and year
                     }),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('Kirim')
+                    ->action(function () {
+                        self::sendAllReports(); // Panggil metode statis
+                    })
+                    ->visible(function () {
+                        return self::hasReportsToSend(); // Panggil metode statis
+                    }),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
@@ -131,5 +141,35 @@ class LaporanKinerjaResource extends Resource
             'create' => Pages\CreateLaporanKinerja::route('/create'),
             'edit' => Pages\EditLaporanKinerja::route('/{record}/edit'),
         ];
+    }
+
+    protected static function sendAllReports()
+    {
+        // Ambil semua laporan kinerja yang memiliki tanggal akhir bulan
+        $reports = LaporanKinerja::whereDate('tanggal', now()->endOfMonth())->get();
+
+        if ($reports->isEmpty()) {
+            Notification::make()
+                ->title('Tidak ada laporan untuk dikirim.')
+                ->success()
+                ->send();
+
+            return;
+        }
+
+        foreach ($reports as $report) {
+            // Logika untuk mengirim laporan
+            $report->update(['status' => 'Dikirim']); // Update status laporan
+        }
+
+        Notification::make()
+            ->title('Semua laporan kinerja berhasil dikirim ke pemeriksa!')
+            ->success()
+            ->send();
+    }
+
+    protected static function hasReportsToSend()
+    {
+        return LaporanKinerja::whereDate('tanggal', now()->endOfMonth())->exists();
     }
 }
