@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Stpjm;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UnitKerja extends Model
 {
@@ -27,4 +29,5 @@ class UnitKerja extends Model
     protected $casts = [
         'id' => 'integer',
     ];
+
 }
