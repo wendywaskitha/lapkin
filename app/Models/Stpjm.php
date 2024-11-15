@@ -20,8 +20,6 @@ class Stpjm extends Model
         'user_id',
         'unitkerja_id',
         'tandatangan_id',
-        'unit_kerja_id',
-        'tanda_tangan_id',
     ];
 
     /**
@@ -33,7 +31,6 @@ class Stpjm extends Model
         'id' => 'integer',
         'tanggal' => 'date',
         'user_id' => 'integer',
-        'unit_kerja_id' => 'integer',
         'tanda_tangan_id' => 'integer',
     ];
 

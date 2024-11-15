@@ -14,11 +14,9 @@ return new class extends Migration
         Schema::create('stpjms', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
-            $table->foreignId('user_id');
-            $table->string('unitkerja_id');
-            $table->string('tandatangan_id');
-            $table->foreignId('unit_kerja_id');
-            $table->foreignId('tanda_tangan_id');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('unitkerja_id')->constrained('unit_kerjas')->cascadeOnDelete();
+            $table->foreignId('tandatangan_id')->constrained('tanda_tangans')->cascadeOnDelete();
             $table->timestamps();
         });
     }

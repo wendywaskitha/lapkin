@@ -33,14 +33,11 @@ class StpjmResource extends Resource
                 Forms\Components\Select::make('unitkerja_id')
                     ->relationship('unitkerja', 'name')
                     ->required(),
-                Forms\Components\Select::make('tandatangan_id')
+                Forms\Components\Select::make('tanda_tangan_id')
                     ->relationship('tandatangan', 'name')
                     ->required(),
                 Forms\Components\Select::make('unit_kerja_id')
                     ->relationship('unitKerja', 'name')
-                    ->required(),
-                Forms\Components\Select::make('tanda_tangan_id')
-                    ->relationship('tandaTangan', 'name')
                     ->required(),
             ]);
     }

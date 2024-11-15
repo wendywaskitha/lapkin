@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS `cache` (
 -- Dumping data for table lapkin.cache: ~2 rows (approximately)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1731502895),
-	('a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1731502895;', 1731502895);
+	('a17961fa74e9275d529f489537f179c05d50c2f3', 'i:2;', 1731638758),
+	('a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1731638758;', 1731638758);
 
 -- Dumping structure for table lapkin.cache_locks
 CREATE TABLE IF NOT EXISTS `cache_locks` (
@@ -68,11 +68,22 @@ CREATE TABLE IF NOT EXISTS `detail_pegawais` (
   `eselon_id` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`id`),
+  KEY `detail_pegawais_user_id_foreign` (`user_id`),
+  KEY `detail_pegawais_pangkat_id_foreign` (`pangkat_id`),
+  KEY `detail_pegawais_jabatan_id_foreign` (`jabatan_id`),
+  KEY `detail_pegawais_eselon_id_foreign` (`eselon_id`),
+  CONSTRAINT `detail_pegawais_eselon_id_foreign` FOREIGN KEY (`eselon_id`) REFERENCES `eselons` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `detail_pegawais_jabatan_id_foreign` FOREIGN KEY (`jabatan_id`) REFERENCES `jabatans` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `detail_pegawais_pangkat_id_foreign` FOREIGN KEY (`pangkat_id`) REFERENCES `pangkats` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `detail_pegawais_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table lapkin.detail_pegawais: ~0 rows (approximately)
+-- Dumping data for table lapkin.detail_pegawais: ~2 rows (approximately)
 DELETE FROM `detail_pegawais`;
+INSERT INTO `detail_pegawais` (`id`, `user_id`, `nip`, `pangkat_id`, `jabatan_id`, `eselon_id`, `created_at`, `updated_at`) VALUES
+	(1, 4, '198710082020121003', 5, 1, 5, '2024-11-14 03:50:45', '2024-11-14 03:50:45'),
+	(2, 5, '198706182020121006', 6, 1, 5, '2024-11-14 04:27:21', '2024-11-14 04:27:21');
 
 -- Dumping structure for table lapkin.eselons
 CREATE TABLE IF NOT EXISTS `eselons` (
@@ -165,8 +176,9 @@ DELETE FROM `job_batches`;
 CREATE TABLE IF NOT EXISTS `laporan_kinerjas` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint unsigned NOT NULL,
-  `tanggal` datetime NOT NULL,
-  `jam_kerja` time NOT NULL,
+  `tanggal` date NOT NULL,
+  `jam_awal` time NOT NULL,
+  `jam_akhir` time NOT NULL,
   `uraian` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `target` double NOT NULL,
   `realisasi` double NOT NULL,
@@ -176,8 +188,10 @@ CREATE TABLE IF NOT EXISTS `laporan_kinerjas` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table lapkin.laporan_kinerjas: ~1 rows (approximately)
+-- Dumping data for table lapkin.laporan_kinerjas: ~0 rows (approximately)
 DELETE FROM `laporan_kinerjas`;
+INSERT INTO `laporan_kinerjas` (`id`, `user_id`, `tanggal`, `jam_awal`, `jam_akhir`, `uraian`, `target`, `realisasi`, `capaian`, `created_at`, `updated_at`) VALUES
+	(1, 5, '2024-11-14', '08:00:00', '08:15:00', 'Mengisi Persensi Pegawai', 100, 100, 100, '2024-11-14 04:28:35', '2024-11-14 04:28:35');
 
 -- Dumping structure for table lapkin.migrations
 CREATE TABLE IF NOT EXISTS `migrations` (
@@ -185,7 +199,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table lapkin.migrations: ~10 rows (approximately)
 DELETE FROM `migrations`;
@@ -245,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `seksis` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table lapkin.seksis: ~1 rows (approximately)
+-- Dumping data for table lapkin.seksis: ~0 rows (approximately)
 DELETE FROM `seksis`;
 INSERT INTO `seksis` (`id`, `name`, `bidang_id`, `created_at`, `updated_at`) VALUES
 	(1, 'Seksi Daerah Objek Wisata', 1, '2024-11-13 13:17:47', '2024-11-13 13:17:47');
@@ -266,7 +280,58 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Dumping data for table lapkin.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('KOT7Qp54m5kUgOCtSwYP1SwD2Wvkl5iiXxZxy3yD', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiQjVEb2hrb0xkME5oZnZWOU5SeVkySEJFbTQ5aVVXQVZJbTZpdjZKWCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDQ6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9sYXBvcmFuLWtpbmVyamFzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoxNzoicGFzc3dvcmRfaGFzaF93ZWIiO3M6NjA6IiQyeSQxMiRTVHhWVkk3Uk1HSGJpYk40eUhucU4uUWpIVVhtZ3llTTNURnZaczVDODhhWW55Ni4wbkIxLiI7czo4OiJmaWxhbWVudCI7YTowOnt9fQ==', 1731507864);
+	('Rg4lbFB0MlnPUCdfBcleCkucGNnGV7pu74rHk0Y4', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiZzhoRnRGcTBCOGVKbDR0ZGMza2t4VFlwaXJsQnpETFdZT0M5SGc5bCI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ0OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYWRtaW4vbGFwb3Jhbi1raW5lcmphcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoxNzoicGFzc3dvcmRfaGFzaF93ZWIiO3M6NjA6IiQyeSQxMiRTVHhWVkk3Uk1HSGJpYk40eUhucU4uUWpIVVhtZ3llTTNURnZaczVDODhhWW55Ni4wbkIxLiI7czo4OiJmaWxhbWVudCI7YTowOnt9fQ==', 1731646662);
+
+-- Dumping structure for table lapkin.stpjms
+CREATE TABLE IF NOT EXISTS `stpjms` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `tanggal` date NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `unitkerja_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tandatangan_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `unit_kerja_id` bigint unsigned NOT NULL,
+  `tanda_tangan_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table lapkin.stpjms: ~1 rows (approximately)
+DELETE FROM `stpjms`;
+INSERT INTO `stpjms` (`id`, `tanggal`, `user_id`, `unitkerja_id`, `tandatangan_id`, `unit_kerja_id`, `tanda_tangan_id`, `created_at`, `updated_at`) VALUES
+	(1, '2024-11-30', 5, '1', '1', 1, 1, '2024-11-15 02:46:14', '2024-11-15 02:46:14');
+
+-- Dumping structure for table lapkin.tanda_tangans
+CREATE TABLE IF NOT EXISTS `tanda_tangans` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `jabatan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nip` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pangkat` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table lapkin.tanda_tangans: ~0 rows (approximately)
+DELETE FROM `tanda_tangans`;
+INSERT INTO `tanda_tangans` (`id`, `name`, `jabatan`, `nip`, `pangkat`, `created_at`, `updated_at`) VALUES
+	(1, 'LA ODE ALI KADIRUN, S.Pd., M.P', 'Kepala Dinas', '196311101987081002', 'Pembina Tk. I, Gol. IV/b', '2024-11-14 04:29:37', '2024-11-14 04:29:37');
+
+-- Dumping structure for table lapkin.unit_kerjas
+CREATE TABLE IF NOT EXISTS `unit_kerjas` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table lapkin.unit_kerjas: ~0 rows (approximately)
+DELETE FROM `unit_kerjas`;
+INSERT INTO `unit_kerjas` (`id`, `name`, `alamat`, `created_at`, `updated_at`) VALUES
+	(1, 'DINAS PARIWISATA DAN EKONOMI KREATIF', 'Jln. Poros Wapae Jaya', '2024-11-14 04:29:13', '2024-11-15 03:59:28');
 
 -- Dumping structure for table lapkin.users
 CREATE TABLE IF NOT EXISTS `users` (
@@ -280,13 +345,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table lapkin.users: ~2 rows (approximately)
 DELETE FROM `users`;
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
 	(1, 'admin', 'admin@admin.com', NULL, '$2y$12$STxVVI7RMGHbibN4yHnqN.QjHUXmgyeM3TFvZs5C88aYny6.0nB1.', NULL, '2024-11-13 04:57:28', '2024-11-13 04:57:28'),
-	(2, 'Muslimin, ST', 'muslimin@admin.com', NULL, '$2y$12$viBz6CnvAkGQ1orvlCiF0edQ5O1RhTQuC/aoYr4IXLG97D1nOg5mW', NULL, '2024-11-13 14:18:38', '2024-11-13 14:18:38');
+	(4, 'Wendy Waskitha', 'wendy@admin.com', NULL, '$2y$12$N8RXv6pEFjCH5zbXYks.k.nNZM5.Q7CPCf9baAY3L6LsLmrzsXT2S', NULL, '2024-11-14 03:50:45', '2024-11-14 03:50:45'),
+	(5, 'Muslimin, ST', 'muslimin@admin.com', NULL, '$2y$12$dDkS0cC3GflDddgKsM/UEewJovWahP5.FtkGpeqr9qkHQPz/f8RGK', NULL, '2024-11-14 04:21:02', '2024-11-14 04:21:02');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
