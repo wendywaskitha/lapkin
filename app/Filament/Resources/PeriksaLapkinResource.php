@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -17,7 +18,7 @@ use App\Filament\Resources\PeriksaLapkinResource\RelationManagers;
 
 class PeriksaLapkinResource extends Resource
 {
-    protected static ?string $model = LaporanKinerja::class;
+    protected static ?string $model = User::class;
 
     protected static ?string $navigationLabel = 'Periksa Laporan Kinerja';
 
@@ -36,7 +37,7 @@ class PeriksaLapkinResource extends Resource
         return $table
             ->columns([
                 Stack::make([
-                    Tables\Columns\TextColumn::make('user.name')
+                    Tables\Columns\TextColumn::make('name')
                         ->searchable(),
                     Tables\Columns\TextColumn::make('detailPegawai.nip')
                         ->label('NIP')
