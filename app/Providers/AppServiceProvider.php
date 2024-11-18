@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use Filament\Facades\Filament;
 use Illuminate\Support\ServiceProvider;
+use App\Filament\Resources\LaporanKinerjaDikirimResource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +22,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Carbon\Carbon::setLocale('id');
+
+        // Register your resources here
+        Filament::registerResources([
+            LaporanKinerjaDikirimResource::class,
+            // Resource lainnya...
+        ]);
     }
 }

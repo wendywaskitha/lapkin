@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UnitKerja::class);
     }
+
+    public function laporanKinerjas()
+    {
+        return $this->belongsToMany(LaporanKinerja::class, 'laporan_kinerja_user');
+    }
 }
