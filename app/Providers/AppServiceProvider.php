@@ -23,10 +23,5 @@ class AppServiceProvider extends ServiceProvider
     {
         \Carbon\Carbon::setLocale('id');
 
-        // Register your resources here
-        Filament::registerResources([
-            LaporanKinerjaDikirimResource::class,
-            // Resource lainnya...
-        ]);
     }
 }
